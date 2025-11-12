@@ -8,7 +8,18 @@
 		   {{ session('success') }}
 	   </div>
     @endif
-	<a href="{{ route('jobs.create') }}" class="w-full px-3 py-2 text-sm font-medium rounded-md bg-green-600 hover:bg-red-700 text-white m-5">Tambah Lowongan</a>
+
+    @if(Auth::check() && Auth::user()->role === 'admin')
+        <div class="flex gap-2">
+            <a href="{{ route('jobs.create') }}" class="w-full px-3 py-2 text-sm font-medium rounded-md bg-green-600 hover:bg-red-700 text-white m-5">Tambah Lowongan</a>
+            {{-- <form action="/jobs/import" method="POST"
+                enctype="multipart/form-data">
+                @csrf
+                <input class="text-white" type="file" name="file" required>
+                <button type="submit" class="btn btn-info text-white">Import Lowongan</button>
+            </form> --}}
+        </div>
+    @endif
 
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 		@forelse($jobs as $job)
@@ -36,16 +47,26 @@
                     @endif
 			    </div>
 		    </div>
-			<div class="p-4 border-t border-gray-700">
-				<div class="flex gap-2">
-					<a href="{{ route('jobs.edit', $job->id) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md bg-yellow-500 hover:bg-yellow-600 text-white">Edit</a>
-					<form action="{{ route('jobs.destroy', $job->id) }}" method="POST" class="flex-1">
-						@csrf
-						@method('DELETE')
-						<button class="w-full px-3 py-2 text-sm font-medium rounded-md bg-red-600 hover:bg-red-700 text-white" onclick="return confirm('Hapus data?')">Hapus</button>
-					</form>
-				</div>
-			</div>
+            {{-- kalau role admin --}}
+            @if(Auth::check() && Auth::user()->role === 'admin')
+                <div class="p-4 border-t border-gray-700">
+                    <div class="flex gap-2">
+                        <a href="{{ route('jobs.edit', $job->id) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md bg-yellow-500 hover:bg-yellow-600 text-white">Edit</a>
+                        <form action="{{ route('jobs.destroy', $job->id) }}" method="POST" class="flex-1">
+                            @csrf
+                            @method('DELETE')
+                            <button class="w-full px-3 py-2 text-sm font-medium rounded-md bg-red-600 hover:bg-red-700 text-white" onclick="return confirm('Hapus data?')">Hapus</button>
+                        </form>
+                    </div>
+                </div>
+            @endif
+            @if(Auth::check() && Auth::user()->role === 'user')
+                <form action="{{ route('apply.store', $job->id) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2 mb-6 p-4 border-t border-gray-700">
+                    @csrf
+                    <input type="file" name="cv" required class="block rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900" />
+                    <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 text-sm font-medium">Lamar</button>
+                </form>
+            @endif
 		</div>
 		@empty
             <div class="col-span-full">
