@@ -40,14 +40,14 @@ Route::resource('jobs', JobController::class)->middleware('auth')->only(['index'
 
 Route::post('/jobs/{job}/apply', [ApplicationController::class, 'store'])->name('apply.store')->middleware('auth');
 
-Route::get('/jobs/{job}/applicants', [ApplicationController::class, 'index'])->name('applications.index')->middleware('isAdmin');
-
-Route::resource('applications', ApplicationController::class)->middleware(['auth', 'isAdmin'])->except(['index', 'show']);
-
-Route::resource('applications', ApplicationController::class)->middleware(['auth'])->only(['index', 'show']);
+Route::get('/jobs/{job}/applicants', [ApplicationController::class, 'show'])->name('jobs.applicants')->middleware('isAdmin');
 
 Route::get('/applications/export', [ApplicationController::class, 'export'])->name('applications.export')->middleware('isAdmin');
 
 Route::post('/jobs/import', [JobController::class, 'import'])->name('jobs.import')->middleware('isAdmin');
+
+Route::resource('applications', ApplicationController::class)->middleware('isAdmin')->except(['index', 'show']);
+
+Route::resource('applications', ApplicationController::class)->middleware(['auth'])->only(['index', 'show']);
 
 require __DIR__.'/auth.php';

@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Application;
+use App\Models\JobVacancy;
+use App\Exports\ApplicationsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ApplicationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, $jobId)
+    public function index(Request $request)
     {
         $applications = Application::with('user', 'job')->get();
         return view('applications.index',compact('applications'));
@@ -27,7 +30,7 @@ class ApplicationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, JobVacancy $job)
     {
         $request->validate([
             'cv' => 'required|mimes:pdf|max:2048',
@@ -35,12 +38,9 @@ class ApplicationController extends Controller
 
         $cvPath = $request->file('cv')->store('cvs', 'public');
 
-        // Pastikan $jobId sudah didefinisikan atau diterima dari request
-        $jobId = $request->input('job_id');
-
         Application::create([
             'user_id' => auth()->id(),
-            'job_id' => $jobId,
+            'job_id' => $job->id,
             'cv' => $cvPath,
             'status' => 'pending', // default status jika perlu
         ]);
@@ -51,9 +51,14 @@ class ApplicationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, $id)
     {
-        //
+        // $id here refers to job id (from /jobs/{job}/applicants)
+        $job = JobVacancy::findOrFail($id);
+        $applications = Application::with(['user', 'job'])
+            ->where('job_id', $id)
+            ->get();
+        return view('applications.index', compact('applications', 'job'));
     }
 
     /**
@@ -79,4 +84,10 @@ class ApplicationController extends Controller
     {
         //
     }
+
+    public function export()
+    {
+        return Excel::download (new ApplicationsExport, 'applications.xlsx');
+    }
+
 }

@@ -1,7 +1,7 @@
 <x-app-layout>
 	<x-slot name="header">
 		<h2 class="font-semibold text-xl text-gray-800 leading-tight">
-			{{ __('Daftar Pelamar') }}
+			Daftar Pelamar
 		</h2>
 	</x-slot>
 	<div class="py-12">
@@ -9,7 +9,8 @@
 			<div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
 				<div class="p-6 text-gray-900">
 					<div class="flex items-center justify-between mb-6">
-						<p class="text-lg font-medium text-gray-700">Kelola daftar pelamar yang tersedia.</p>
+						<p class="text-lg font-medium text-gray-700">Kelola daftar pelamar yang tersedia{!! isset($job) ? ' untuk lowongan <b>' . $job->title . '</b>.' : '.' !!}</p>
+                        <a href="{{ route('applications.export') }}" class="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 text-sm font-medium">Ekspor ke Excel</a>
 					</div>
 					<div class="overflow-x-auto">
 						<table class="min-w-full divide-y divide-gray-200">
@@ -39,7 +40,7 @@
 										</span>
 									</td>
 									<td class="px-4 py-3 text-sm text-gray-700">
-										<div class="flex items-center gap-2">
+										<div class="flex items-center gap-2 flex-wrap">
 											<form action="{{ route('applications.update', $app->id) }}" method="POST">
 												@csrf
 												@method('PUT')

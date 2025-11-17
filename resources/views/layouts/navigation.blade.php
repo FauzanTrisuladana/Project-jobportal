@@ -18,6 +18,11 @@
                     <x-nav-link :href="route('jobs.index')" :active="request()->routeIs('jobs.*')">
                         {{ __('Jobs') }}
                     </x-nav-link>
+                    @if (Auth::check() && Auth::user()->role === 'admin')
+                        <x-nav-link :href="route('applications.index')" :active="request()->routeIs('applications.*')">
+                            {{ __('Applicants') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 

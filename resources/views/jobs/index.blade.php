@@ -10,47 +10,41 @@
     @endif
 
     @if(Auth::check() && Auth::user()->role === 'admin')
-        <div class="flex gap-2">
-            <a href="{{ route('jobs.create') }}" class="w-full px-3 py-2 text-sm font-medium rounded-md bg-green-600 hover:bg-red-700 text-white m-5">Tambah Lowongan</a>
-            {{-- <form action="/jobs/import" method="POST"
-                enctype="multipart/form-data">
+        <div class="flex flex-col md:flex-row gap-4 mb-6 p-4 bg-gray-800 rounded-lg shadow">
+            <a href="{{ route('jobs.create') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-green-600 hover:bg-green-700 text-white transition">Tambah Lowongan</a>
+            <form action="/jobs/import" method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row gap-3 items-center flex-1">
                 @csrf
-                <input class="text-white" type="file" name="file" required>
-                <button type="submit" class="btn btn-info text-white">Import Lowongan</button>
-            </form> --}}
+                <input type="file" name="file" required class="block rounded-md border border-gray-600 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 bg-gray-700 text-white file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 file:cursor-pointer">
+                <button type="submit" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-indigo-600 hover:bg-indigo-700 text-white transition">Import Lowongan</button>
+            </form>
         </div>
     @endif
 
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 		@forelse($jobs as $job)
 	    <div class="bg-gray-800 rounded-lg shadow overflow-hidden flex flex-col mt-2">
-		    <div class="flex flex-row p-6">
-			    <div class="p-4 flex-1 flex flex-col justify-between">
-				    <div>
-                        <h5 class="text-lg font-semibold text-white">{{ $job->title }}</h5>
-                        <p class="text-sm text-white mb-2">{{ $job->company }}</p>
-                        <div class="text-sm text-white space-y-1">
-                            <p>📝 {{ $job->description }}</p>
-                            <p>📍 {{ $job->location }}</p>
-                            <p>💰 Rp {{ number_format($job->salary, 0, ',', '.') }}</p>
-                            <p>👜 {{ $job->job_type }}</p>
-                        </div>
-				    </div>
-			    </div>
-				<div class="flex-shrink-0 flex items-center justify-center w-40 p-4 mr-4">
-                    @if($job->logo)
-                        <img src="{{ asset('storage/' . $job->logo) }}" alt="{{ $job->company }}" class="object-cover rounded-r-lg" style="max-height:200px; max-width:160px;">
-                    @else
-                        <div class="h-40 w-40 bg-gray-700 flex items-center justify-center rounded-r-lg">
-                            <span class="text-white">No Logo</span>
-                        </div>
-                    @endif
-			    </div>
+		    @if($job->logo)
+                <img src="{{ asset('storage/' . $job->logo) }}" alt="{{ $job->company }}" class="w-full h-48 object-cover">
+            @else
+                <div class="w-full h-48 bg-gray-700 flex items-center justify-center">
+                    <span class="text-white text-lg">No Logo</span>
+                </div>
+            @endif
+            <div class="p-6">
+                <h5 class="text-lg font-semibold text-white">{{ $job->title }}</h5>
+                <p class="text-sm text-white mb-2">{{ $job->company }}</p>
+                <div class="text-sm text-white space-y-1">
+                    <p>📝 {{ $job->description }}</p>
+                    <p>📍 {{ $job->location }}</p>
+                    <p>💰 Rp {{ number_format($job->salary, 0, ',', '.') }}</p>
+                    <p>👜 {{ $job->job_type }}</p>
+                </div>
 		    </div>
             {{-- kalau role admin --}}
             @if(Auth::check() && Auth::user()->role === 'admin')
-                <div class="p-4 border-t border-gray-700">
+                <div class="p-4 border-t border-gray-700 mt-auto">
                     <div class="flex gap-2">
+                        <a href="{{ route('jobs.applicants', $job->id) }}" class="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2">Aplicant</a>
                         <a href="{{ route('jobs.edit', $job->id) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-md bg-yellow-500 hover:bg-yellow-600 text-white">Edit</a>
                         <form action="{{ route('jobs.destroy', $job->id) }}" method="POST" class="flex-1">
                             @csrf
@@ -60,8 +54,9 @@
                     </div>
                 </div>
             @endif
+            {{-- kalau role user --}}
             @if(Auth::check() && Auth::user()->role === 'user')
-                <form action="{{ route('apply.store', $job->id) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2 mb-6 p-4 border-t border-gray-700">
+                <form action="{{ route('apply.store', $job->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-3 mb-6 p-4 border-t border-gray-700 mt-auto">
                     @csrf
                     <input type="file" name="cv" required class="block rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white text-gray-900" />
                     <button type="submit" class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 text-sm font-medium">Lamar</button>
