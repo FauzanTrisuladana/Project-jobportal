@@ -11,8 +11,11 @@
 
     @if(Auth::check() && Auth::user()->role === 'admin')
         <div class="flex flex-col md:flex-row gap-4 mb-6 p-4 bg-gray-800 rounded-lg shadow">
-            <a href="{{ route('jobs.create') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-green-600 hover:bg-green-700 text-white transition">Tambah Lowongan</a>
-            <form action="/jobs/import" method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row gap-3 items-center flex-1">
+            <div class="flex flex-col sm:flex-row gap-3 items-center">
+                <a href="{{ route('jobs.create') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-green-600 hover:bg-green-700 text-white transition">Tambah Lowongan</a>
+                <a href="{{ route('jobs.sample') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-indigo-500 hover:bg-indigo-600 text-white transition">Download Contoh Excel</a>
+            </div>
+            <form action="/jobs/import" method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row gap-3 items-center flex-1 mt-4 md:mt-0">
                 @csrf
                 <input type="file" name="file" required class="block rounded-md border border-gray-600 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 bg-gray-700 text-white file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 file:cursor-pointer">
                 <button type="submit" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md bg-indigo-600 hover:bg-indigo-700 text-white transition">Import Lowongan</button>

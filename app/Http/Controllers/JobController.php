@@ -134,4 +134,14 @@ class JobController extends Controller
         Excel::import(new JobsImport, $request->file('file'));
         return back()->with('success', 'Data lowongan berhasil diimport');
     }
+
+	/**
+	 * Download sample Excel template stored in public storage.
+	 */
+	public function sampleExcel()
+	{
+		$path = storage_path('app/public/Contoh.xlsx');
+		abort_unless(file_exists($path), 404, 'Contoh.xlsx tidak ditemukan');
+		return response()->download($path, 'Contoh.xlsx');
+	}
 }

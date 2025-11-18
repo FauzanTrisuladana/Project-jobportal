@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function () {
 //     return "Halaman Admin";
 // })->middleware('isAdmin');
 
+Route::get('/jobs/sample-excel', [JobController::class, 'sampleExcel'])->name('jobs.sample')->middleware('isAdmin');
+
 Route::resource('jobs', JobController::class)->middleware('isAdmin')->except(['index', 'show']);
 
 Route::resource('jobs', JobController::class)->middleware('auth')->only(['index', 'show']);

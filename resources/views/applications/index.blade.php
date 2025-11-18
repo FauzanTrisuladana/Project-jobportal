@@ -10,7 +10,11 @@
 				<div class="p-6 text-gray-900">
 					<div class="flex items-center justify-between mb-6">
 						<p class="text-lg font-medium text-gray-700">Kelola daftar pelamar yang tersedia{!! isset($job) ? ' untuk lowongan <b>' . $job->title . '</b>.' : '.' !!}</p>
-                        <a href="{{ route('applications.export') }}" class="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 text-sm font-medium">Ekspor ke Excel</a>
+						@if(isset($job))
+						<a href="{{ route('applications.export', ['job' => $job->id]) }}" class="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 text-sm font-medium">Ekspor Pelamar Lowongan Ini</a>
+						@else
+						<a href="{{ route('applications.export') }}" class="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 text-sm font-medium">Ekspor Semua Pelamar</a>
+						@endif
 					</div>
 					<div class="overflow-x-auto">
 						<table class="min-w-full divide-y divide-gray-200">
@@ -29,7 +33,10 @@
 									<td class="px-4 py-3 text-sm text-gray-700">{{ $app->user->name }}</td>
 									<td class="px-4 py-3 text-sm text-gray-700">{{ $app->job->title }}</td>
 									<td class="px-4 py-3 text-sm text-gray-700">
-										<a href="{{ asset('storage/'. $app->cv) }}" target="_blank" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2">Lihat CV</a>
+										<div class="flex gap-2">
+											<a href="{{ asset('storage/'. $app->cv) }}" target="_blank" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2">Lihat CV</a>
+											<a href="{{ asset('storage/'. $app->cv) }}" download="CV-{{ Str::slug($app->user->name) }}.pdf" class="inline-flex items-center rounded-md border border-transparent bg-green-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2">Download CV</a>
+										</div>
 									</td>
 									<td class="px-4 py-3 text-sm text-gray-700">
 										<span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium

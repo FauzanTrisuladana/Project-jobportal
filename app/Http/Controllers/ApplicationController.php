@@ -42,7 +42,7 @@ class ApplicationController extends Controller
             'user_id' => auth()->id(),
             'job_id' => $job->id,
             'cv' => $cvPath,
-            'status' => 'pending', // default status jika perlu
+            'status' => 'Pending', // konsisten dengan tampilan yang mengecek 'Pending'
         ]);
 
         return back()->with('success', 'Lamaran berhasil dikirim!');
@@ -72,9 +72,17 @@ class ApplicationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Application $application)
     {
-        //
+        $request->validate([
+            'status' => 'required|in:Accepted,Rejected',
+        ]);
+
+        $application->update([
+            'status' => $request->input('status'),
+        ]);
+
+        return back()->with('success', 'Status aplikasi diperbarui menjadi ' . $application->status);
     }
 
     /**
@@ -85,9 +93,10 @@ class ApplicationController extends Controller
         //
     }
 
-    public function export()
+    public function export(Request $request)
     {
-        return Excel::download (new ApplicationsExport, 'applications.xlsx');
+        $jobId = $request->query('job');
+        $filename = $jobId ? 'applications_job_'.$jobId.'.xlsx' : 'applications.xlsx';
+        return Excel::download(new ApplicationsExport($jobId), $filename);
     }
-
 }
