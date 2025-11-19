@@ -7,6 +7,11 @@ use App\Models\Application;
 use App\Models\JobVacancy;
 use App\Exports\ApplicationsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Mail\JobAppliedMail;
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+use App\Notifications\NewApplicationNotification;
+use App\Jobs\SendApplicationMailJob;
 
 class ApplicationController extends Controller
 {
@@ -38,14 +43,21 @@ class ApplicationController extends Controller
 
         $cvPath = $request->file('cv')->store('cvs', 'public');
 
-        Application::create([
+        $application = Application::create([
             'user_id' => auth()->id(),
             'job_id' => $job->id,
             'cv' => $cvPath,
             'status' => 'Pending', // konsisten dengan tampilan yang mengecek 'Pending'
         ]);
 
-        return back()->with('success', 'Lamaran berhasil dikirim!');
+        // Kirim email ke user
+        // Mail::to(auth()->user()->email)->send(new JobAppliedMail($application->job, auth()->user()));
+        dispatch(new SendApplicationMailJob($job, auth()->user()));
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            $admin->notify(new NewApplicationNotification($application));
+        }
+        return back()->with('success', 'Lamaran berhasil dikirim! Cek email Anda.');
     }
 
     /**

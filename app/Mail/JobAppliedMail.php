@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -11,43 +10,32 @@ use Illuminate\Queue\SerializesModels;
 
 class JobAppliedMail extends Mailable
 {
-    use Queueable, SerializesModels;
+	use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
-    {
-        //
-    }
+	public $job;
+	public $user;
 
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'Job Applied Mail',
-        );
-    }
+	public function __construct($job, $user)
+	{
+		$this->job = $job;
+		$this->user = $user;
+	}
 
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'view.name',
-        );
-    }
+	public function envelope(): Envelope
+	{
+		return new Envelope(
+			subject: 'Lamaran Baru untuk ' . $this->job->title,
+		);
+	}
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
-    }
+	public function content(): Content
+	{
+		return new Content(
+			view: 'emails.job_applied',
+			with: [
+				'job' => $this->job,
+				'user' => $this->user,
+			],
+		);
+	}
 }
