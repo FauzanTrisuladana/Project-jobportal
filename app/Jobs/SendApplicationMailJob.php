@@ -9,21 +9,26 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\JobAppliedMail;
+use App\Models\JobVacancy;
+use App\Models\User;
 
 class SendApplicationMailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $job;
-    public $user;
+    // Avoid naming collision with InteractsWithQueue::$job
+    public JobVacancy $jobVacancy;
+    public User $user;
+    public string $cvPath;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($job, $user)
+    public function __construct(JobVacancy $jobVacancy, User $user, string $cvPath)
     {
-        $this->job = $job;
+        $this->jobVacancy = $jobVacancy;
         $this->user = $user;
+        $this->cvPath = $cvPath;
     }
 
     /**
@@ -31,6 +36,6 @@ class SendApplicationMailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Mail::to($this->user->email)->send(new JobAppliedMail($this->job, $this->user));
+        Mail::to($this->user->email)->send(new JobAppliedMail($this->jobVacancy, $this->user, $this->cvPath));
     }
 }

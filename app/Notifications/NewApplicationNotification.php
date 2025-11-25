@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewApplicationNotification extends Notification
+class NewApplicationNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -26,7 +26,7 @@ class NewApplicationNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -49,7 +49,11 @@ class NewApplicationNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'application_id' => $this->application->id,
+            'job_id' => $this->application->job->id,
+            'job_title' => $this->application->job->title,
+            'applicant_name' => $this->application->user->name,
+            'cv_url' => asset('storage/' . ltrim($this->application->cv, '/')),
         ];
     }
 }

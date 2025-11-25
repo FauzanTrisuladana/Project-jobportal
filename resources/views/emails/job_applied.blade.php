@@ -8,6 +8,11 @@
 	<h2>Halo {{ $user->name }},</h2>
 	<p>Terima kasih telah melamar pekerjaan <b>{{ $job->title }}</b> di {{ $job->company }}.</p>
 	<p>Lamaran Anda telah kami terima dan sedang diproses oleh tim HR kami.</p>
+	@isset($cvUrl)
+	<p>CV yang Anda kirimkan dapat diunduh di sini:
+		<a href="{{ $cvUrl }}" target="_blank">Download CV</a>
+	</p>
+	@endisset
 	<br>
 	<p>Salam,</p>
 	<p><b>Tim {{ config('app.name') }}</b></p>

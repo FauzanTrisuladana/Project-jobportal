@@ -12,19 +12,22 @@ class JobAppliedMail extends Mailable
 {
 	use Queueable, SerializesModels;
 
-	public $job;
+	// Rename from $job to avoid collision with Mailable internal queued job property
+	public $jobVacancy;
 	public $user;
+	public string $cvPath;
 
-	public function __construct($job, $user)
+	public function __construct($jobVacancy, $user, string $cvPath)
 	{
-		$this->job = $job;
+		$this->jobVacancy = $jobVacancy;
 		$this->user = $user;
+		$this->cvPath = $cvPath;
 	}
 
 	public function envelope(): Envelope
 	{
 		return new Envelope(
-			subject: 'Lamaran Baru untuk ' . $this->job->title,
+			subject: 'Lamaran Baru untuk ' . ($this->jobVacancy->title ?? 'Pekerjaan'),
 		);
 	}
 
@@ -33,8 +36,9 @@ class JobAppliedMail extends Mailable
 		return new Content(
 			view: 'emails.job_applied',
 			with: [
-				'job' => $this->job,
+				'job' => $this->jobVacancy, // keep variable name 'job' for the blade template
 				'user' => $this->user,
+				'cvUrl' => asset('storage/' . ltrim($this->cvPath, '/')),
 			],
 		);
 	}

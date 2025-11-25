@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Notifications\NewApplicationNotification;
 use App\Jobs\SendApplicationMailJob;
+use App\Mail\ApplicationStatusMail;
 
 class ApplicationController extends Controller
 {
@@ -50,11 +51,13 @@ class ApplicationController extends Controller
             'status' => 'Pending', // konsisten dengan tampilan yang mengecek 'Pending'
         ]);
 
-        // Kirim email ke user
-        // Mail::to(auth()->user()->email)->send(new JobAppliedMail($application->job, auth()->user()));
-        dispatch(new SendApplicationMailJob($job, auth()->user()));
+        // Kirim email ke user (sertakan path CV sebagai argumen ke-3)
+        Mail::to(auth()->user()->email)->send(new JobAppliedMail($job, auth()->user(), $application->cv));
+        // dispatch(new SendApplicationMailJob($job, auth()->user(), $application->cv));
         $admin = User::where('role', 'admin')->first();
-        $admin->notify(new NewApplicationNotification($application));
+        if ($admin) {
+            $admin->notify(new NewApplicationNotification($application));
+        }
         return back()->with('success', 'Lamaran berhasil dikirim! Cek email Anda.');
     }
 
@@ -88,9 +91,17 @@ class ApplicationController extends Controller
             'status' => 'required|in:Accepted,Rejected',
         ]);
 
+        $was = $application->status;
         $application->update([
             'status' => $request->input('status'),
         ]);
+
+        // If status actually changed, send a status email to applicant
+        if ($was !== $application->status) {
+            $application->loadMissing('user', 'job');
+            // Kirim langsung tanpa queue
+            Mail::to($application->user->email)->send(new ApplicationStatusMail($application));
+        }
 
         return back()->with('success', 'Status aplikasi diperbarui menjadi ' . $application->status);
     }
@@ -108,5 +119,13 @@ class ApplicationController extends Controller
         $jobId = $request->query('job');
         $filename = $jobId ? 'applications_job_'.$jobId.'.xlsx' : 'applications.xlsx';
         return Excel::download(new ApplicationsExport($jobId), $filename);
+    }
+
+    public function readAll()
+    {
+        if (auth()->check()) {
+            auth()->user()->unreadNotifications->markAsRead();
+        }
+        return back();
     }
 }

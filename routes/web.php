@@ -35,6 +35,9 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/jobs/sample-excel', [JobController::class, 'sampleExcel'])->name('jobs.sample')->middleware('isAdmin');
 
+// Admin notifications helpers
+Route::post('/notifications/read-all', [ApplicationController::class, 'readAll'])->name('notifications.readAll')->middleware(['auth','isAdmin']);
+
 Route::resource('jobs', JobController::class)->middleware('isAdmin')->except(['index', 'show']);
 
 Route::resource('jobs', JobController::class)->middleware('auth')->only(['index', 'show']);
