@@ -54,9 +54,7 @@ class ApplicationController extends Controller
         // Mail::to(auth()->user()->email)->send(new JobAppliedMail($application->job, auth()->user()));
         dispatch(new SendApplicationMailJob($job, auth()->user()));
         $admin = User::where('role', 'admin')->first();
-        if ($admin) {
-            $admin->notify(new NewApplicationNotification($application));
-        }
+        $admin->notify(new NewApplicationNotification($application));
         return back()->with('success', 'Lamaran berhasil dikirim! Cek email Anda.');
     }
 
