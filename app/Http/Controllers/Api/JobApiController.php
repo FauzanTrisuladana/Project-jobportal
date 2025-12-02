@@ -10,10 +10,100 @@ class JobApiController extends Controller
 {
 	/**
 	 * @OA\Get(
+	 *     path="/api/public/jobs",
+	 *     summary="Get public job listings (no auth)",
+	 *     tags={"Jobs"},
+	 *     @OA\Parameter(
+	 *         name="keyword",
+	 *         in="query",
+	 *         description="Search text applied to title, company, and location",
+	 *         required=false,
+	 *         @OA\Schema(type="string")
+	 *     ),
+	 *     @OA\Parameter(
+	 *         name="company",
+	 *         in="query",
+	 *         description="Filter by company name (partial match)",
+	 *         required=false,
+	 *         @OA\Schema(type="string")
+	 *     ),
+	 *     @OA\Parameter(
+	 *         name="location",
+	 *         in="query",
+	 *         description="Filter by job location (partial match)",
+	 *         required=false,
+	 *         @OA\Schema(type="string")
+	 *     ),
+	 *     @OA\Parameter(
+	 *         name="page",
+	 *         in="query",
+	 *         description="Page number (default 1)",
+	 *         required=false,
+	 *         @OA\Schema(type="integer", minimum=1)
+	 *     ),
+	 *     @OA\Parameter(
+	 *         name="per_page",
+	 *         in="query",
+	 *         description="Items per page (default 10)",
+	 *         required=false,
+	 *         @OA\Schema(type="integer")
+	 *     ),
+	 *     @OA\Response(
+	 *         response=200,
+	 *         description="List of jobs",
+	 *         @OA\JsonContent(
+	 *             type="array",
+	 *             @OA\Items(
+	 *                 @OA\Property(property="id", type="integer"),
+	 *                 @OA\Property(property="title", type="string"),
+	 *                 @OA\Property(property="company", type="string"),
+	 *                 @OA\Property(property="location", type="string")
+	 *             )
+	 *         )
+	 *     )
+	 * )
+	 */
+	/**
+	 * @OA\Get(
 	 *     path="/api/jobs",
 	 *     summary="Get all job listings",
 	 *     tags={"Jobs"},
 	 *     security={{"bearerAuth":{}}},
+		*     @OA\Parameter(
+		*         name="keyword",
+		*         in="query",
+		*         description="Search text applied to title, company, and location",
+		*         required=false,
+		*         @OA\Schema(type="string")
+		*     ),
+		*     @OA\Parameter(
+		*         name="company",
+		*         in="query",
+		*         description="Filter by company name (partial match)",
+		*         required=false,
+		*         @OA\Schema(type="string")
+		*     ),
+		*     @OA\Parameter(
+		*         name="location",
+		*         in="query",
+		*         description="Filter by job location (partial match)",
+		*         required=false,
+		*         @OA\Schema(type="string")
+		*     ),
+        *     @OA\Parameter(
+        *         name="page",
+        *         in="query",
+        *         description="Page number (default 1)",
+        *         required=false,
+        *         @OA\Schema(type="integer", minimum=1)
+        *     ),
+		*     @OA\Parameter(
+		*         name="per_page",
+		*         in="query",
+		*         description="Items per page (default 10)",
+		*         required=false,
+		*         @OA\Schema(type="integer")
+		*     ),
 	 *     @OA\Response(
 	 *         response=200,
 	 *         description="List of jobs",
@@ -40,6 +130,12 @@ class JobApiController extends Controller
 				  ->orWhere('company', 'like', "%$kw%")
 				  ->orWhere('location', 'like', "%$kw%") ;
 			});
+		}
+		if ($req->filled('company')) {
+			$q->where('company', 'like', '%'.$req->get('company').'%');
+		}
+		if ($req->filled('location')) {
+			$q->where('location', 'like', '%'.$req->get('location').'%');
 		}
 		$jobs = $q->orderBy('created_at', 'desc')->paginate($req->get('per_page', 10));
 		return response()->json($jobs);

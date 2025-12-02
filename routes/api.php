@@ -9,6 +9,9 @@ Route::get('/status', fn () => ['status' => 'API is running']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Public, read-only jobs endpoint (no token required)
+Route::get('/public/jobs', [JobApiController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me', fn (Request $request) => $request->user());
 	Route::post('/logout', [AuthController::class, 'logout']);
@@ -33,9 +36,11 @@ Route::middleware('auth:sanctum')->group(function () {
      * Endpoints for Application resource
      * - POST /api/jobs/{job}/apply  => apply to a job
      * - GET /api/applications       => list all applications
+     * - PATCH /api/applications/{application}/status => update application status
      */
     Route::controller(ApplicationApiController::class)->group(function () {
         Route::post('/jobs/{job}/apply', 'store');
         Route::get('/applications', 'index');
+        Route::patch('/applications/{application}/status', 'updateStatus');
     });
 });
